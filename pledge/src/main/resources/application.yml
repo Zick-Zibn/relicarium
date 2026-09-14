@@ -1,0 +1,19 @@
+server:
+  # HTTP-порт Java-приложения (разносим с ledger 8082 и auction 8083)
+  port: 8081
+
+spring:
+  application:
+    name: pledge-service
+
+  datasource:
+    # Подключение через проброшенный порт хоста (5433), база pledge
+    url: jdbc:postgresql://localhost:5433/pledge
+    username: postgres
+    password: postgres
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true

@@ -1,0 +1,28 @@
+services:
+  postgres-pledge:
+    image: postgres:15-alpine
+    hostname: pledge
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pledge
+  postgres-ledger:
+    image: postgres:15-alpine
+    hostname: ledger
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ledger
+  postgres-auction:
+    image: postgres:15-alpine
+    hostname: auction
+    ports:
+      - 5435:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auction

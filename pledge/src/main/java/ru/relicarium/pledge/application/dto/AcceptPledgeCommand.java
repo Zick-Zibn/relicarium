@@ -1,4 +1,4 @@
-package ru.relicarium.pledge.api.dto;
+package ru.relicarium.pledge.application.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
