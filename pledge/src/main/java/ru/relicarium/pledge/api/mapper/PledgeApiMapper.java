@@ -2,7 +2,13 @@ package ru.relicarium.pledge.api.mapper;
 
 import org.springframework.stereotype.Component;
 import ru.relicarium.pledge.application.dto.AcceptPledgeCommand;
+import ru.relicarium.pledge.application.dto.DisbursePledgeCommand;
+import ru.relicarium.pledge.application.dto.PayInterestPledgeCommand;
+import ru.relicarium.pledge.application.dto.RedeemPledgeCommand;
 import ru.relicarium.pledge.application.dto.request.CreatePledgeRequest;
+import ru.relicarium.pledge.application.dto.request.DisbursePledgeRequest;
+import ru.relicarium.pledge.application.dto.request.PayInterestPledgeRequest;
+import ru.relicarium.pledge.application.dto.request.RedeemPledgeRequest;
 import ru.relicarium.pledge.application.dto.response.PledgeResponse;
 import ru.relicarium.pledge.domain.model.Pledge;
 
@@ -21,7 +27,8 @@ public class PledgeApiMapper {
                  createPledgeRequest.estimatedValue(),
                  createPledgeRequest.loanAmount(),
                  createPledgeRequest.interestRate(),
-                 createPledgeRequest.termDays());
+                 createPledgeRequest.termDays()
+         );
      }
 
      public PledgeResponse toResponse(Pledge pledge) {
@@ -35,6 +42,29 @@ public class PledgeApiMapper {
                 pledge.getDueDate(),
                 pledge.getClient().getId(),
                 pledge.getItem().getId(),
-                pledge.getItem().getName());
+                pledge.getItem().getName()
+        );
+     }
+     public DisbursePledgeCommand toDisburseCommand(DisbursePledgeRequest request) {
+         return new DisbursePledgeCommand(
+                 request.operationId(),
+                 request.openedAt()
+         );
+     }
+
+     public RedeemPledgeCommand toRedeemCommand(RedeemPledgeRequest request) {
+         return new RedeemPledgeCommand(
+                 request.operationId(),
+                 request.amount(),
+                 request.paidAt()
+         );
+     }
+
+     public PayInterestPledgeCommand toPayInterestCommand(PayInterestPledgeRequest request) {
+         return new PayInterestPledgeCommand(
+                 request.operationId(),
+                 request.amount(),
+                 request.paidAt()
+         );
      }
 }

@@ -1,4 +1,4 @@
-package ru.relicarium.ledger.application.dto;
+package ru.relicarium.ledger.application.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-public record DisburseLoanCommand(
+public record DisburseLoanRequest(
         @NotNull
         UUID pledgeId,
         @NotNull

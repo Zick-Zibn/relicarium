@@ -1,4 +1,4 @@
-package ru.relicarium.ledger.application.dto;
+package ru.relicarium.pledge.application.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -6,12 +6,13 @@ import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.UUID;
 
-public record PayInterestCommand(
-        @NotNull UUID pledgeId,
-        @Positive BigDecimal amount,
-        @NotBlank String operationId,
+public record RedeemPledgeRequest(
+        @NotBlank
+        String operationId,
+        @NotNull
+        @Positive
+        BigDecimal amount,
         OffsetDateTime paidAt
 ) {
 }
