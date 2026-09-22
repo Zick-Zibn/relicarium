@@ -1,5 +1,4 @@
 server:
-  # HTTP-порт Java-приложения (разносим с ledger 8082 и auction 8083)
   port: 8081
 
 spring:
@@ -7,7 +6,6 @@ spring:
     name: pledge-service
 
   datasource:
-    # Подключение через проброшенный порт хоста (5433), база pledge
     url: jdbc:postgresql://localhost:5433/pledge
     username: postgres
     password: postgres
@@ -20,3 +18,5 @@ spring:
 relicarium:
   ledger:
     base-url: http://localhost:8082
+  auction:
+    base-url: http://localhost:8083

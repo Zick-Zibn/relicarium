@@ -14,13 +14,16 @@ import ru.relicarium.pledge.application.dto.ApplyPledgeTransitionCommand;
 import ru.relicarium.pledge.application.dto.DisbursePledgeCommand;
 import ru.relicarium.pledge.application.dto.PayInterestPledgeCommand;
 import ru.relicarium.pledge.application.dto.RedeemPledgeCommand;
+import ru.relicarium.pledge.application.dto.SendToAuctionPledgeCommand;
 import ru.relicarium.pledge.application.dto.request.ApplyPledgeTransitionRequest;
 import ru.relicarium.pledge.application.dto.request.CreatePledgeRequest;
 import ru.relicarium.pledge.application.dto.request.DisbursePledgeRequest;
 import ru.relicarium.pledge.application.dto.request.PayInterestPledgeRequest;
 import ru.relicarium.pledge.application.dto.request.RedeemPledgeRequest;
+import ru.relicarium.pledge.application.dto.request.SendToAuctionPledgeRequest;
 import ru.relicarium.pledge.application.dto.response.PledgeResponse;
 import ru.relicarium.pledge.application.service.PledgeAcceptanceService;
+import ru.relicarium.pledge.application.service.PledgeAuctionSubmissionService;
 import ru.relicarium.pledge.application.service.PledgeDisbursementService;
 import ru.relicarium.pledge.application.service.PledgeInterestPaymentService;
 import ru.relicarium.pledge.application.service.PledgeRedemptionService;
@@ -39,13 +42,15 @@ public class PledgeController {
     private final PledgeRedemptionService pledgeRedemptionService;
     private final PledgeInterestPaymentService pledgeInterestPaymentService;
     private final PledgeTransitionService pledgeTransitionService;
+    private final PledgeAuctionSubmissionService pledgeAuctionSubmissionService;
 
     public PledgeController(PledgeAcceptanceService pledgeAcceptanceService,
                             PledgeApiMapper pledgeApiMapper,
                             PledgeDisbursementService pledgeDisbursementService,
                             PledgeRedemptionService pledgeRedemptionService,
                             PledgeInterestPaymentService pledgeInterestPaymentService,
-                            PledgeTransitionService pledgeTransitionService) {
+                            PledgeTransitionService pledgeTransitionService,
+                            PledgeAuctionSubmissionService pledgeAuctionSubmissionService) {
 
         this.pledgeAcceptanceService = pledgeAcceptanceService;
         this.pledgeApiMapper = pledgeApiMapper;
@@ -53,6 +58,7 @@ public class PledgeController {
         this.pledgeRedemptionService = pledgeRedemptionService;
         this.pledgeInterestPaymentService = pledgeInterestPaymentService;
         this.pledgeTransitionService = pledgeTransitionService;
+        this.pledgeAuctionSubmissionService = pledgeAuctionSubmissionService;
     }
 
     @PostMapping
@@ -103,6 +109,17 @@ public class PledgeController {
             @Valid @RequestBody ApplyPledgeTransitionRequest request) {
         ApplyPledgeTransitionCommand command = pledgeApiMapper.toApplyPledgeTransitionCommand(request);
         Pledge pledge = pledgeTransitionService.apply(pledgeId, command);
+
+        return ResponseEntity.ok(pledgeApiMapper.toResponse(pledge));
+    }
+
+    @PostMapping("/{pledgeId}/auction-submissions")
+    public ResponseEntity<PledgeResponse> submitToAuction(
+            @PathVariable("pledgeId") UUID pledgeId,
+            @Valid @RequestBody SendToAuctionPledgeRequest request) {
+
+        SendToAuctionPledgeCommand command = pledgeApiMapper.toSendToAuctionPledgeCommand(request);
+        Pledge pledge = pledgeAuctionSubmissionService.submit(pledgeId, command);
 
         return ResponseEntity.ok(pledgeApiMapper.toResponse(pledge));
     }

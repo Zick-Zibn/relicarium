@@ -1,0 +1,1 @@
+ALTER TABLE lots ADD COLUMN completion_operation_id VARCHAR(100) NULL;

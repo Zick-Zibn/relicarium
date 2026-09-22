@@ -6,11 +6,13 @@ import ru.relicarium.pledge.application.dto.ApplyPledgeTransitionCommand;
 import ru.relicarium.pledge.application.dto.DisbursePledgeCommand;
 import ru.relicarium.pledge.application.dto.PayInterestPledgeCommand;
 import ru.relicarium.pledge.application.dto.RedeemPledgeCommand;
+import ru.relicarium.pledge.application.dto.SendToAuctionPledgeCommand;
 import ru.relicarium.pledge.application.dto.request.ApplyPledgeTransitionRequest;
 import ru.relicarium.pledge.application.dto.request.CreatePledgeRequest;
 import ru.relicarium.pledge.application.dto.request.DisbursePledgeRequest;
 import ru.relicarium.pledge.application.dto.request.PayInterestPledgeRequest;
 import ru.relicarium.pledge.application.dto.request.RedeemPledgeRequest;
+import ru.relicarium.pledge.application.dto.request.SendToAuctionPledgeRequest;
 import ru.relicarium.pledge.application.dto.response.PledgeResponse;
 import ru.relicarium.pledge.domain.model.Pledge;
 
@@ -74,5 +76,10 @@ public class PledgeApiMapper {
     public ApplyPledgeTransitionCommand toApplyPledgeTransitionCommand(ApplyPledgeTransitionRequest request) {
 
          return new ApplyPledgeTransitionCommand(request.transition());
+    }
+
+    public SendToAuctionPledgeCommand toSendToAuctionPledgeCommand(SendToAuctionPledgeRequest request) {
+
+        return new SendToAuctionPledgeCommand(request.operationId());
     }
 }

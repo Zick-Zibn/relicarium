@@ -1,5 +1,6 @@
 package ru.relicarium.pledge.integration;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -14,14 +15,10 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class LedgerClientImpl implements  LedgerClient{
 
     private final RestClient ledgerRestClient;
-
-    public LedgerClientImpl(RestClient restClient) {
-
-        this.ledgerRestClient = restClient;
-    }
 
     @Override
     public LedgerLoanResponse disburse(LedgerDisburseRequest httpRequest) {
