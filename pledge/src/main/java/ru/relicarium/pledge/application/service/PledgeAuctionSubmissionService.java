@@ -7,5 +7,5 @@ import java.util.UUID;
 
 public interface PledgeAuctionSubmissionService {
 
-    Pledge submit(UUID pledgeIв, SendToAuctionPledgeCommand command);
+    Pledge submit(UUID pledgeId, SendToAuctionPledgeCommand command);
 }
