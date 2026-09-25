@@ -3,11 +3,15 @@ package ru.relicarium.ledger.api.mapper;
 import org.springframework.stereotype.Component;
 import ru.relicarium.ledger.application.dto.DisburseLoanCommand;
 import ru.relicarium.ledger.application.dto.LoanAmountDueResult;
+import ru.relicarium.ledger.application.dto.PayClientSurplusCommand;
 import ru.relicarium.ledger.application.dto.PayInterestCommand;
 import ru.relicarium.ledger.application.dto.RepayLoanCommand;
+import ru.relicarium.ledger.application.dto.SettleLoanAfterAuctionCommand;
 import ru.relicarium.ledger.application.dto.request.DisburseLoanRequest;
+import ru.relicarium.ledger.application.dto.request.PayClientSurplusRequest;
 import ru.relicarium.ledger.application.dto.request.PayInterestRequest;
 import ru.relicarium.ledger.application.dto.request.RepayLoanRequest;
+import ru.relicarium.ledger.application.dto.request.SettleLoanAfterAuctionRequest;
 import ru.relicarium.ledger.application.dto.response.LoanAmountDueResponse;
 import ru.relicarium.ledger.application.dto.response.LoanResponse;
 import ru.relicarium.ledger.domain.model.Loan;
@@ -64,5 +68,22 @@ public class LedgerApiMapper {
                 amountDueSnapshot.interestDue(),
                 amountDueSnapshot.totalDue(),
                 amountDueSnapshot.closed());
+    }
+    public SettleLoanAfterAuctionCommand toSettleLoanAfterAuctionCommand(SettleLoanAfterAuctionRequest request) {
+        return new SettleLoanAfterAuctionCommand(
+                request.pledgeId(),
+                request.operationId(),
+                request.saleProceeds(),
+                request.settleAt()
+        );
+    }
+
+    public PayClientSurplusCommand toPayClientSurplusCommand(PayClientSurplusRequest request) {
+        return new PayClientSurplusCommand(
+                request.pledgeId(),
+                request.operationId(),
+                request.amount(),
+                request.paidAt()
+        );
     }
 }

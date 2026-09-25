@@ -11,3 +11,10 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: true
+
+relicarium:
+  security:
+    jwt:
+      secret: relicarium-dev-jwt-secret-min-32-characters-long
+      issuer: relicarium
+      access-token-ttl: PT8H

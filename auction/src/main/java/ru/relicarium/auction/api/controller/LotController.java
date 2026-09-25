@@ -13,7 +13,7 @@ import ru.relicarium.auction.application.dto.CompleteLotCommand;
 import ru.relicarium.auction.application.dto.CreateLotCommand;
 import ru.relicarium.auction.application.dto.request.CompleteLotRequest;
 import ru.relicarium.auction.application.dto.request.CreateLotRequest;
-import ru.relicarium.auction.application.dto.responce.LotResponse;
+import ru.relicarium.auction.application.dto.response.LotResponse;
 import ru.relicarium.auction.application.service.LotCompletionService;
 import ru.relicarium.auction.application.service.LotRegistrationService;
 import ru.relicarium.auction.domain.model.Lot;

@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import ru.relicarium.auction.domain.enums.LotStatus;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 public record CompleteLotRequest(
@@ -11,6 +12,8 @@ public record CompleteLotRequest(
         UUID pledgeId,
         @NotBlank
         String operationId,
-        @NotNull LotStatus finalStatus
+        @NotNull
+        LotStatus finalStatus,
+        BigDecimal saleProceeds
 ) {
 }

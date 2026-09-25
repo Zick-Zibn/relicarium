@@ -15,6 +15,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import ru.relicarium.auction.domain.enums.LotStatus;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -49,4 +50,7 @@ public class Lot {
 
     @Column(name = "completion_operation_id", length = 100)
     private String completionOperationId;
+
+    @Column(name = "sale_price", precision = 15, scale = 2)
+    private BigDecimal salesPrice;
 }

@@ -8,8 +8,16 @@ import org.springframework.web.client.RestClient;
 public class LedgerClientConfig {
 
     @Bean
-    RestClient ledgerRestClient(LedgerProperties ledgerProperties) {
+    RestClient ledgerRestClient(
+            LedgerProperties ledgerProperties,
+            BearerTokenForwardingInterceptor bearerTokenForwardingInterceptor) {
 
-        return RestClient.builder().baseUrl(ledgerProperties.baseUrl()).build();
+        return RestClient.builder()
+                .baseUrl(ledgerProperties.baseUrl())
+                .requestInterceptor((request, body, execution) -> {
+                    bearerTokenForwardingInterceptor.apply(request.getHeaders());
+                    return execution.execute(request, body);
+                })
+                .build();
     }
 }

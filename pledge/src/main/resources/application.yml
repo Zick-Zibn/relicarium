@@ -20,3 +20,8 @@ relicarium:
     base-url: http://localhost:8082
   auction:
     base-url: http://localhost:8083
+  security:
+    jwt:
+      secret: relicarium-dev-jwt-secret-min-32-characters-long
+      issuer: relicarium
+      access-token-ttl: PT8H

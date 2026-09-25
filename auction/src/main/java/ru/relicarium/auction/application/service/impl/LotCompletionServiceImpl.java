@@ -10,6 +10,8 @@ import ru.relicarium.auction.domain.enums.LotStatus;
 import ru.relicarium.auction.domain.model.Lot;
 import ru.relicarium.auction.persistence.repository.LotRepository;
 
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor
 public class LotCompletionServiceImpl implements LotCompletionService {
@@ -35,6 +37,21 @@ public class LotCompletionServiceImpl implements LotCompletionService {
         }
         lot.setStatus(command.finalStatus());
         lot.setCompletionOperationId(command.operationId());
+
+        switch (lot.getStatus()) {
+            case SOLD:
+                if (command.saleProceeds() != null && command.saleProceeds().compareTo(BigDecimal.ZERO) > 0 ) {
+                    lot.setSalesPrice(command.saleProceeds());
+                } else {
+                    throw new IllegalStateException("The sale amount must be greater than zero");
+                }
+                break;
+            case UNSOLD:
+                if (command.saleProceeds() != null) {
+                    throw new IllegalStateException("The sale amount must be null");
+                }
+                break;
+        }
         lotRepository.save(lot);
 
         return lot;

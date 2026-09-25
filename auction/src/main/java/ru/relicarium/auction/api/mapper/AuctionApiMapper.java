@@ -5,7 +5,7 @@ import ru.relicarium.auction.application.dto.CompleteLotCommand;
 import ru.relicarium.auction.application.dto.CreateLotCommand;
 import ru.relicarium.auction.application.dto.request.CompleteLotRequest;
 import ru.relicarium.auction.application.dto.request.CreateLotRequest;
-import ru.relicarium.auction.application.dto.responce.LotResponse;
+import ru.relicarium.auction.application.dto.response.LotResponse;
 import ru.relicarium.auction.domain.model.Lot;
 
 @Component
@@ -23,7 +23,8 @@ public class AuctionApiMapper {
                 lot.getId(),
                 lot.getPledgeId(),
                 lot.getStatus(),
-                lot.getCreatedAt()
+                lot.getCreatedAt(),
+                lot.getSalesPrice()
         );
     }
 
@@ -31,7 +32,8 @@ public class AuctionApiMapper {
         return new CompleteLotCommand(
                 request.pledgeId(),
                 request.operationId(),
-                request.finalStatus()
+                request.finalStatus(),
+                request.saleProceeds()
         );
     }
 }

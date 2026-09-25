@@ -6,6 +6,6 @@ import ru.relicarium.pledge.integration.dto.AuctionRegisterLotRequest;
 
 public interface AuctionClient {
 
-    AuctionLotResponse registerLot(AuctionRegisterLotRequest request);
-    AuctionLotResponse completeLot(AuctionCompleteLotRequest request);
+    AuctionLotResponse registerLot(AuctionRegisterLotRequest httpRequest);
+    AuctionLotResponse completeLot(AuctionCompleteLotRequest httpRequest);
 }

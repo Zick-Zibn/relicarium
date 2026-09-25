@@ -8,7 +8,15 @@ import org.springframework.web.client.RestClient;
 public class AuctionClientConfig {
 
     @Bean
-    public RestClient auctionRestClient(AuctionProperties properties) {
-        return RestClient.builder().baseUrl(properties.baseUrl()).build();
+    public RestClient auctionRestClient(
+            AuctionProperties properties,
+            BearerTokenForwardingInterceptor bearerTokenForwardingInterceptor) {
+        return RestClient.builder()
+                .baseUrl(properties.baseUrl())
+                .requestInterceptor((request, body, execution) -> {
+                    bearerTokenForwardingInterceptor.apply(request.getHeaders());
+                    return execution.execute(request, body);
+                })
+                .build();
     }
 }

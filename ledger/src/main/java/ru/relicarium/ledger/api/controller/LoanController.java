@@ -1,6 +1,7 @@
 package ru.relicarium.ledger.api.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,14 +13,20 @@ import ru.relicarium.ledger.api.mapper.LedgerApiMapper;
 import ru.relicarium.ledger.application.dto.DisburseLoanCommand;
 import ru.relicarium.ledger.application.dto.LoanAmountDueQuery;
 import ru.relicarium.ledger.application.dto.LoanAmountDueResult;
+import ru.relicarium.ledger.application.dto.PayClientSurplusCommand;
 import ru.relicarium.ledger.application.dto.PayInterestCommand;
 import ru.relicarium.ledger.application.dto.RepayLoanCommand;
+import ru.relicarium.ledger.application.dto.SettleLoanAfterAuctionCommand;
 import ru.relicarium.ledger.application.dto.request.DisburseLoanRequest;
+import ru.relicarium.ledger.application.dto.request.PayClientSurplusRequest;
 import ru.relicarium.ledger.application.dto.request.PayInterestRequest;
 import ru.relicarium.ledger.application.dto.request.RepayLoanRequest;
+import ru.relicarium.ledger.application.dto.request.SettleLoanAfterAuctionRequest;
 import ru.relicarium.ledger.application.dto.response.LoanAmountDueResponse;
 import ru.relicarium.ledger.application.dto.response.LoanResponse;
+import ru.relicarium.ledger.application.service.ClientSurplusPayoutService;
 import ru.relicarium.ledger.application.service.LoanAmountDueService;
+import ru.relicarium.ledger.application.service.LoanAuctionSettlementService;
 import ru.relicarium.ledger.application.service.LoanCashService;
 import ru.relicarium.ledger.application.service.LoanDisbursementService;
 import ru.relicarium.ledger.domain.model.Loan;
@@ -28,22 +35,15 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/loans")
 public class LoanController {
     private final LoanAmountDueService loanAmountDueService;
     private final LoanCashService loanCashService;
     private final LoanDisbursementService loanDisbursementService;
     private final LedgerApiMapper ledgerApiMapper;
-
-    public LoanController(LoanAmountDueService loanAmountDueService,
-                          LoanCashService loanCashService,
-                          LoanDisbursementService loanDisbursementService,
-                          LedgerApiMapper ledgerApiMapper) {
-        this.loanAmountDueService = loanAmountDueService;
-        this.loanCashService = loanCashService;
-        this.loanDisbursementService = loanDisbursementService;
-        this.ledgerApiMapper = ledgerApiMapper;
-    }
+    private final LoanAuctionSettlementService loanAuctionSettlementService;
+    private final ClientSurplusPayoutService clientSurplusPayoutService;
 
     @GetMapping("/amount-due")
     public ResponseEntity<LoanAmountDueResponse> getAmountDue(
@@ -84,5 +84,25 @@ public class LoanController {
         LoanResponse loanResponse = ledgerApiMapper.toLoanResponse(loan);
 
         return ResponseEntity.ok(loanResponse);
+    }
+
+    @PostMapping("/auction-settlements")
+    public ResponseEntity<LoanResponse> auctionSettlements(
+            @Valid @RequestBody SettleLoanAfterAuctionRequest request) {
+
+        SettleLoanAfterAuctionCommand command = ledgerApiMapper.toSettleLoanAfterAuctionCommand(request);
+        Loan loan = loanAuctionSettlementService.settleAfterAuction(command);
+
+        return ResponseEntity.ok(ledgerApiMapper.toLoanResponse(loan));
+    }
+
+    @PostMapping("/client-payouts")
+    public ResponseEntity<LoanResponse> clientPayouts(
+            @Valid @RequestBody PayClientSurplusRequest request) {
+
+        PayClientSurplusCommand command = ledgerApiMapper.toPayClientSurplusCommand(request);
+        Loan loan = clientSurplusPayoutService.payClientSurplus(command);
+
+        return ResponseEntity.ok(ledgerApiMapper.toLoanResponse(loan));
     }
 }

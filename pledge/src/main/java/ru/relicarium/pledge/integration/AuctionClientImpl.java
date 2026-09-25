@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 import ru.relicarium.pledge.integration.dto.AuctionCompleteLotRequest;
 import ru.relicarium.pledge.integration.dto.AuctionLotResponse;
@@ -33,12 +32,12 @@ public class AuctionClientImpl implements AuctionClient{
     }
 
     @Override
-    @Transactional
     public AuctionLotResponse completeLot(AuctionCompleteLotRequest httpRequest) {
 
         return auctionRestClient
                 .post()
-                .uri("api/v1/lots/completions")
+                .uri("/api/v1/lots/completions")
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(httpRequest)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (request, response) -> {
@@ -46,6 +45,5 @@ public class AuctionClientImpl implements AuctionClient{
                             + response.getStatusCode());
                 })
                 .body(AuctionLotResponse.class);
-
     }
 }

@@ -18,7 +18,7 @@ public interface JournalLineRepository extends JpaRepository<JournalLine, UUID> 
             FROM JournalLine jl\s
             where jl.journalDocument.loan.id = :loanId
                 AND jl.account.code = 'LOANS'
-           \s""")
+           """)
     BigDecimal sumOutstandingPrincipal(@Param("loanId") UUID loanId);
 
     @Query("""
@@ -28,4 +28,12 @@ public interface JournalLineRepository extends JpaRepository<JournalLine, UUID> 
             AND jl.account.code = 'INTEREST_INCOME'
         """)
     BigDecimal sumRecognizedInterestIncome(@Param("loanId") UUID loanId);
+
+    @Query("""
+        SELECT COALESCE(SUM(jl.credit), 0) - COALESCE(SUM(jl.debit), 0)
+        FROM JournalLine jl
+        WHERE jl.account.code = 'CLIENT_PAYABLE'
+            AND jl.journalDocument.pledgeId = :pledgeId
+        """)
+    BigDecimal sumClientPayableBalanceByPledgeId(@Param("pledgeId") UUID pledgeId);
 }

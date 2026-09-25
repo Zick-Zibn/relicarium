@@ -1,0 +1,220 @@
+### Relicarium — IntelliJ HTTP Client
+### Сценарий: docs/E2E-HAPPY-PATH.md (login + продажа + client-payout)
+### Перед прогоном: docker compose up -d; ledger → auction → pledge
+### JWT: сначала «0. Login», затем остальные запросы (Bearer подставится из accessToken)
+
+@pledgeHost = http://localhost:8081
+@ledgerHost = http://localhost:8082
+
+@authUsername = cashier
+@authPassword = password
+
+@runId = e2e-1
+@opDisburse = disburse-{{runId}}
+@opAuctionSubmit = auction-reg-{{runId}}
+@opSale = auction-sale-{{runId}}
+@opPayout = client-payout-{{runId}}
+
+# После «Accept» подставится из ответа; можно задать вручную:
+@pledgeId = 00000000-0000-0000-0000-000000000000
+
+# После «Amount due» обнови saleProceeds (>= totalDue) и payoutAmount (переплата):
+@saleProceeds = 12000.00
+@payoutAmount = 1900.00
+
+@asOf = 2026-09-25
+@paidAt = 2026-09-25T15:00:00+03:00
+@openedAt = 2026-09-25T10:00:00+03:00
+
+# После login подставится accessToken (см. @authUsername / @authPassword):
+@accessToken = replace-me
+
+###############################################################################
+# Auth (JWT)
+###############################################################################
+
+### 0. Login (JWT → accessToken)
+POST {{pledgeHost}}/api/v1/auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "username": "{{authUsername}}",
+  "password": "{{authPassword}}"
+}
+
+> {%
+  client.test("Login OK", () => client.assert(response.status === 200));
+  client.global.set("accessToken", response.body.accessToken);
+%}
+
+###############################################################################
+# E2E: продажа на торгах
+###############################################################################
+
+### 1. Accept pledge (201 → pledgeId)
+POST {{pledgeHost}}/api/v1/pledges
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "fullName": "Иван Тестов",
+  "phone": "+79001234567",
+  "passportSeries": "1234",
+  "passportNumber": "567890",
+  "itemName": "Золотое кольцо",
+  "description": "HTTP Client E2E",
+  "category": "JEWELRY",
+  "estimatedValue": 15000.00,
+  "loanAmount": 10000.00,
+  "interestRate": 0.1200,
+  "termDays": 0
+}
+
+> {%
+  client.test("Created", () => client.assert(response.status === 201));
+  client.global.set("pledgeId", response.body.id);
+%}
+
+### 2. Disburse (ACTIVE)
+POST {{pledgeHost}}/api/v1/pledges/{{pledgeId}}/disbursements
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "operationId": "{{opDisburse}}",
+  "openedAt": "{{openedAt}}"
+}
+
+### 3. Enter grace (GRACE)
+POST {{pledgeHost}}/api/v1/pledges/{{pledgeId}}/status-transitions
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "transition": "ENTER_GRACE"
+}
+
+### 4. Mark for sale (FOR_SALE)
+POST {{pledgeHost}}/api/v1/pledges/{{pledgeId}}/status-transitions
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "transition": "MARK_FOR_SALE"
+}
+
+### 5. Submit to auction (ON_AUCTION)
+POST {{pledgeHost}}/api/v1/pledges/{{pledgeId}}/auction-submissions
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "operationId": "{{opAuctionSubmit}}"
+}
+
+### 6. Amount due (сохрани totalDue → saleProceeds / payoutAmount)
+GET {{pledgeHost}}/api/v1/pledges/{{pledgeId}}/amount-due?asOf={{asOf}}
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+> {%
+  client.test("Amount due OK", () => client.assert(response.status === 200));
+  const due = response.body.totalDue;
+  client.global.set("totalDue", due);
+  client.log("totalDue = " + due + " — проверь @saleProceeds и @payoutAmount");
+%}
+
+### 7. Auction sale (SOLD)
+POST {{pledgeHost}}/api/v1/pledges/{{pledgeId}}/auction-sales
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "operationId": "{{opSale}}",
+  "saleProceeds": {{saleProceeds}}
+}
+
+### 8. Get pledge (SOLD)
+GET {{pledgeHost}}/api/v1/pledges/{{pledgeId}}
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+### 9. Client payout (переплата)
+POST {{pledgeHost}}/api/v1/pledges/{{pledgeId}}/client-payouts
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "operationId": "{{opPayout}}",
+  "amount": {{payoutAmount}},
+  "paidAt": "{{paidAt}}"
+}
+
+###############################################################################
+# Вспомогательные запросы (pledge)
+###############################################################################
+
+### List pledges (нужен phone или status)
+GET {{pledgeHost}}/api/v1/pledges?phone=%2B79001234567&page=0&size=20
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+### List by status
+GET {{pledgeHost}}/api/v1/pledges?status=SOLD&page=0&size=20
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+### Interest payment (ACTIVE)
+POST {{pledgeHost}}/api/v1/pledges/{{pledgeId}}/interest-payments
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "operationId": "interest-{{runId}}",
+  "amount": 100.00,
+  "paidAt": "{{paidAt}}"
+}
+
+### Auction return (UNSOLD path, из ON_AUCTION)
+POST {{pledgeHost}}/api/v1/pledges/{{pledgeId}}/auction-returns
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "operationId": "auction-return-{{runId}}"
+}
+
+###############################################################################
+# Альтернатива: выкуп (после disburse, без шагов 3–9 E2E)
+###############################################################################
+
+### Redeem — amount из amount-due
+POST {{pledgeHost}}/api/v1/pledges/{{pledgeId}}/redemptions
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "operationId": "redeem-{{runId}}",
+  "amount": 10100.00,
+  "paidAt": "{{paidAt}}"
+}
+
+###############################################################################
+# Прямой ledger (отладка; нужен тот же JWT, что после login)
+###############################################################################
+
+### Ledger: amount-due
+GET {{ledgerHost}}/api/v1/loans/amount-due?pledgeId={{pledgeId}}&asOf={{asOf}}
+Accept: application/json
+Authorization: Bearer {{accessToken}}

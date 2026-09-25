@@ -8,8 +8,10 @@ import org.springframework.web.client.RestClient;
 import ru.relicarium.pledge.integration.dto.LedgerAmountDueResponse;
 import ru.relicarium.pledge.integration.dto.LedgerDisburseRequest;
 import ru.relicarium.pledge.integration.dto.LedgerLoanResponse;
+import ru.relicarium.pledge.integration.dto.LedgerPayClientSurplusRequest;
 import ru.relicarium.pledge.integration.dto.LedgerPayInterestRequest;
 import ru.relicarium.pledge.integration.dto.LedgerRepayRequest;
+import ru.relicarium.pledge.integration.dto.LedgerSettleAfterAuctionRequest;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -22,6 +24,7 @@ public class LedgerClientImpl implements  LedgerClient{
 
     @Override
     public LedgerLoanResponse disburse(LedgerDisburseRequest httpRequest) {
+
         return ledgerRestClient.post()
                 .uri("/api/v1/loans/disbursements")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -35,6 +38,7 @@ public class LedgerClientImpl implements  LedgerClient{
 
     @Override
     public LedgerLoanResponse payInterest(LedgerPayInterestRequest httpRequest) {
+
         return ledgerRestClient.post()
                 .uri("/api/v1/loans/interest-payments")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -48,6 +52,7 @@ public class LedgerClientImpl implements  LedgerClient{
 
     @Override
     public LedgerLoanResponse repay(LedgerRepayRequest httpRequest) {
+
         return ledgerRestClient.post()
                 .uri("/api/v1/loans/repayments")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -61,6 +66,7 @@ public class LedgerClientImpl implements  LedgerClient{
 
     @Override
     public LedgerAmountDueResponse getAmount(UUID pledgeId, LocalDate calculationDate) {
+
         return ledgerRestClient.get()
                 .uri(uriBuilder -> {
                     var builder  = uriBuilder
@@ -76,5 +82,35 @@ public class LedgerClientImpl implements  LedgerClient{
                     throw new LedgerIntegrationException("Ledger amount-due failed status=" + response.getStatusCode());
                 })
                 .body(LedgerAmountDueResponse.class);
+    }
+
+    @Override
+    public LedgerLoanResponse settleAfterAuction(LedgerSettleAfterAuctionRequest httpRequest) {
+
+        return ledgerRestClient
+                .post()
+                .uri("/api/v1/loans/auction-settlements")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(httpRequest)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, (request, response) -> {
+                    throw new LedgerIntegrationException("Ledger settlements failed, status=" + response.getStatusCode());
+                })
+                .body(LedgerLoanResponse.class);
+    }
+
+    @Override
+    public LedgerLoanResponse payClientSurplus(LedgerPayClientSurplusRequest httpRequest) {
+
+        return ledgerRestClient
+                .post()
+                .uri("/api/v1/loans/client-payouts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(httpRequest)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, (request, response) -> {
+                    throw new LedgerIntegrationException("Ledger payouts failed status: " + response.getStatusCode());
+                })
+                .body(LedgerLoanResponse.class);
     }
 }

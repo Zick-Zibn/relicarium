@@ -1,0 +1,1 @@
+ALTER TABLE lots ADD COLUMN sale_price NUMERIC(15, 2) NULL CHECK (sale_price > 0);
